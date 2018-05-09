@@ -2,15 +2,24 @@
 #include <VarSpeedServo.h>
 #include "Adafruit_APDS9960.h"
 Adafruit_APDS9960 apds;
+#include <Adafruit_NeoPixel.h>
 
 
 VarSpeedServo servo;
 //Servo myservo;
 const int myservo = 7;
 int pos = 0; 
-int current_pos;
+int current_pos = 0;
 int sixty  = 60;
-int pos_angle;
+int pos_angle = 0;
+
+// This is the Neo-pixel code 
+#define PIN            6
+
+// There are 24 but 32 works, 24 doesnt
+#define NUMPIXELS      32
+
+Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRBW + NEO_KHZ800);
 
 
 void setup() {
@@ -21,13 +30,23 @@ Serial.begin(115200);
   }
   else Serial.println("Device initialized!");
 
-  //gesture mode will be entered once proximity mode senses something close
+  //gesture sensor set up
   apds.enableProximity(true);
   apds.enableGesture(true);
 
-//this is the setup code for the servo motor
+  //servo motor set up
   servo.attach(myservo);
   servo.write(0,255,true);
+  
+  // neo pixel set up
+  pixels.begin();
+  pixels.setBrightness(30);
+
+  //Set pixels off
+  for(int i=0;i<NUMPIXELS;i++){
+    pixels.setPixelColor(i, pixels.Color(0,0,0)); 
+    pixels.show();
+    }
 
 }
 
@@ -36,9 +55,16 @@ void loop() {
 uint8_t gesture = apds.readGesture();
 
     
-    if(gesture == APDS9960_RIGHT) {
+    if(gesture == APDS9960_RIGHT && pos_angle<180) {
 
           Serial.println(">");
+
+          //Set pixels off
+          for(int i=0;i<NUMPIXELS;i++){
+            pixels.setPixelColor(i, pixels.Color(0,0,0)); 
+            pixels.show();
+            }
+  
           Serial.println(servo.read());
           current_pos = servo.read();
           pos_angle = current_pos + sixty;
@@ -53,9 +79,17 @@ uint8_t gesture = apds.readGesture();
      }
 
     
-     if(gesture == APDS9960_LEFT) {
+     if(gesture == APDS9960_LEFT && pos_angle>0) {
 
           Serial.println("<");
+
+          //Set pixels off
+          for(int i=0;i<NUMPIXELS;i++){
+            pixels.setPixelColor(i, pixels.Color(0,0,0)); 
+            pixels.show();
+            }
+
+            
           Serial.println(servo.read());
           current_pos = servo.read();
           pos_angle = current_pos - sixty;
@@ -69,11 +103,88 @@ uint8_t gesture = apds.readGesture();
 
       }
 }
+
+    if(gesture == APDS9960_UP) {
+
+      Serial.println("^");
+
+
+
+          if (pos_angle == 0){
+              //medium yellow
+
+              for(int i=0;i<NUMPIXELS;i++){
+              pixels.setPixelColor(i, pixels.Color(100,190,5,0)); //green
+              pixels.show();
+              delay(30);
+            }
+
+            for(int i=0;i<NUMPIXELS;i++){
+              pixels.setPixelColor(i, pixels.Color(250,205,5,0)); //yellow
+              pixels.show();
+              delay(30);
+            }
+          }
+
+          else if (pos_angle == 60){
+            //spicy orange
+            
+            for(int i=0;i<NUMPIXELS;i++){
+              pixels.setPixelColor(i, pixels.Color(100,190,5,0)); //green
+              pixels.show();
+              delay(30);
+            }
+
+            for(int i=0;i<NUMPIXELS;i++){
+              pixels.setPixelColor(i, pixels.Color(250,205,5,0)); //yellow
+              pixels.show();
+              delay(30);
+            }
+            for(int i=0;i<NUMPIXELS;i++){
+            pixels.setPixelColor(i, pixels.Color(250,80,5,0)); //orange
+            pixels.show();
+            delay(30);
+            }
+          }
+
+          else if (pos_angle == 120){
+            //mild green
+
+            for(int i=0;i<NUMPIXELS;i++){
+            pixels.setPixelColor(i, pixels.Color(100,190,5,0)); //green
+            pixels.show();
+            }
+          }
+
+          else if (pos_angle == 180){
+            //super spicy red
+
+           for(int i=0;i<NUMPIXELS;i++){
+              pixels.setPixelColor(i, pixels.Color(100,190,5,0)); //green
+              pixels.show();
+              delay(30);
+            }
+
+            for(int i=0;i<NUMPIXELS;i++){
+              pixels.setPixelColor(i, pixels.Color(250,205,5,0)); //yellow
+              pixels.show();
+              delay(30);
+            }
+            for(int i=0;i<NUMPIXELS;i++){
+            pixels.setPixelColor(i, pixels.Color(250,80,5,0)); //orange
+            pixels.show();
+            delay(30);
+            }
+             for(int i=0;i<NUMPIXELS;i++){
+             pixels.setPixelColor(i, pixels.Color(255,0,0,0)); //red
+             pixels.show();
+             delay(30);
+              }
+          }     
+
+    }
       
 }
 
-
-//
-//     if(gesture == APDS9960_DOWN) Serial.println("v");
-//    if(gesture == APDS9960_UP) Serial.println("^");
+//    if(gesture == APDS9960_DOWN) Serial.println("v");
 
